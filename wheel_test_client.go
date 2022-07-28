@@ -19,7 +19,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr", "192.168.8.200:81", "http service address")
+var addr = flag.String("addr", "10.250.250.2:81", "http service address")
 var payload []byte
 
 func main() {
@@ -34,12 +34,14 @@ func main() {
 	u := url.URL{Scheme: "ws", Host: *addr, Path: "/"}
 	log.Printf("connecting to %s", u.String())
 	payload = append(payload, 0)
-	for num := 1; num < 9588; num++ {
+	for num := 1; num < 19200; num++ {
 		payload = append(payload, 16 /* byte(num) */)
 	}
 	c, _, err := dialer.Dial(u.String(), nil)
 	if err != nil {
 		log.Fatal("dial:", err)
+	} else {
+		log.Println("Connected")
 	}
 	defer c.Close()
 
@@ -57,7 +59,7 @@ func main() {
 		}
 	}()
 
-	ticker := time.NewTicker(time.Millisecond * 50)
+	ticker := time.NewTicker(time.Millisecond * 35)
 	defer ticker.Stop()
 
 	for {
@@ -65,7 +67,7 @@ func main() {
 		case <-done:
 			return
 		case _ = <-ticker.C:
-			for num := 31; num < 9588; num++ {
+			for num := 0; num < 19200; num++ {
 				payload[num] = byte(rand.Intn(128))
 			}
 			err := c.WriteMessage(websocket.BinaryMessage, payload)
